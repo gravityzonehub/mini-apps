@@ -1,150 +1,123 @@
 <!doctype html>
-<html lang="en" dir="ltr">
+<html lang="en">
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title>Gravity-Zone Tools</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
   <style>
-    :root{
-      --glass: rgba(10,12,18,.38);
-      --glass-strong: rgba(10,12,18,.60);
-      --text: #f2f5f8;
-      --hint: #c7d0df;
-      --accent: #ff9800;
-      --radius: 18px;
-      --shadow: 0 10px 28px rgba(0,0,0,.35);
-      --stroke: rgba(255,255,255,.12);
-    }
-    *{box-sizing:border-box}
-    html,body{height:100%;margin:0;font-family:'Inter',sans-serif;background:#0b0e14;color:var(--text)}
+    :root{--bg:#0b0e14;--text:#f2f5f8;--hint:#c7d0df;--panel:rgba(255,255,255,.06);--stroke:rgba(255,255,255,.12);--accent:#ff9800;--r:18px;--shadow:0 10px 28px rgba(0,0,0,.35);--g1:#ff9800;--g2:#8a2be2;--g3:#00ffd0}
+    *{box-sizing:border-box}html,body{height:100%;margin:0;background:var(--bg);color:var(--text);font-family:'Inter',system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+    a{text-decoration:none;color:inherit}
     .wrap{min-height:100%;display:flex;flex-direction:column;align-items:center;gap:16px;padding:20px}
-    .header{
-      width:min(1100px,95%);margin-top:10px;display:flex;align-items:center;justify-content:space-between;gap:12px;
-      padding:14px 16px;background:var(--glass);border:1px solid var(--stroke);border-radius:var(--radius);
-      backdrop-filter:blur(10px);box-shadow:var(--shadow)
-    }
+    .row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+    .header{width:min(1100px,95%);margin-top:10px;padding:14px 16px;border-radius:18px;background:var(--panel);border:1px solid var(--stroke);backdrop-filter:blur(10px);box-shadow:var(--shadow);display:flex;align-items:center;justify-content:space-between;gap:12px}
     .brand{display:flex;align-items:center;gap:12px}
-    .logo{width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,#ff9800,#ff5722);box-shadow:0 6px 20px rgba(0,0,0,.35)}
+    .disc{width:44px;height:44px;border-radius:12px;background:conic-gradient(from 210deg,#ff9800,#8a2be2,#00ffd0,#ff9800);position:relative;box-shadow:0 0 22px rgba(255,152,0,.25)}
+    .disc:after{content:"";position:absolute;inset:2px;border-radius:10px;background:#0c1119}
     .title{font-weight:800;letter-spacing:-.2px}
-    .subtitle{color:var(--hint);font-size:13px;margin-top:2px}
-    .pill{padding:8px 12px;border-radius:999px;background:var(--glass-strong);font-size:12px;border:1px solid var(--stroke)}
-    .grid{
-      width:min(1100px,95%);display:grid;gap:16px;margin:6px 0 18px;
-      grid-template-columns:repeat(auto-fit,minmax(260px,1fr))
-    }
-    .card{
-      display:flex;flex-direction:column;gap:14px;padding:18px;background:var(--glass);border:1px solid var(--stroke);
-      border-radius:var(--radius);box-shadow:var(--shadow);backdrop-filter:blur(8px);
-      transition:transform .18s ease, box-shadow .2s ease, border-color .2s ease, background .2s ease
-    }
+    .sub{color:var(--hint);font-size:13px;margin-top:2px}
+    .badge{padding:8px 12px;border-radius:999px;background:rgba(255,255,255,.06);border:1px solid var(--stroke);font-size:12px}
+    .grid{width:min(1100px,95%);display:grid;gap:16px;margin:6px 0 18px;grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+    .card{position:relative;overflow:hidden;border-radius:18px;background:var(--panel);border:1px solid var(--stroke);backdrop-filter:blur(8px);box-shadow:var(--shadow);padding:18px;transition:transform .18s ease,box-shadow .2s ease,border-color .2s ease,background .2s ease}
     .card:hover{transform:translateY(-3px)}
-    .card h3{margin:0;font-size:18px;font-weight:800}
-    .card p{margin:0;color:var(--hint);font-size:13.5px;line-height:1.8}
-    .btn{
-      display:flex;align-items:center;justify-content:center;gap:10px;padding:12px 14px;border-radius:14px;text-decoration:none;color:#000;
-      background:var(--accent);font-weight:800;transition:transform .08s ease, box-shadow .2s ease;box-shadow:0 10px 20px rgba(0,0,0,.25)
-    }
+    .card:before{content:"";position:absolute;inset:-1px;border-radius:19px;padding:1px;background:linear-gradient(135deg,rgba(255,152,0,.55),rgba(138,43,226,.45),rgba(0,255,208,.45));opacity:0;transition:opacity .25s ease;-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude}
+    .card:hover:before{opacity:.8}
+    .corner{position:absolute;width:22px;height:22px;border-radius:50%;filter:blur(10px);opacity:.6}
+    .c1{top:-6px;left:-6px;background:radial-gradient(circle at 30% 30%, rgba(255,152,0,.65), transparent 60%)}
+    .c2{bottom:-8px;right:-8px;background:radial-gradient(circle at 70% 70%, rgba(138,43,226,.55), transparent 60%)}
+    .card h3{margin:0 0 6px;font-size:18px;font-weight:800}
+    .card p{margin:0;color:var(--hint);font-size:13.5px;line-height:1.7}
+    .btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;padding:12px 14px;border-radius:14px;border:1px solid var(--stroke);font-weight:800;cursor:pointer;transition:transform .08s ease,box-shadow .2s ease}
     .btn:active{transform:translateY(1px) scale(.99)}
-    .btn.ghost{background:transparent;color:var(--accent);border:1px solid var(--accent)}
-    .btn.ghost:hover{background:rgba(255,152,0,.08)}
-    .btn.link{background:transparent;color:var(--text);border:1px solid var(--stroke)}
-    .btn.link:hover{background:rgba(255,255,255,.05)}
-    .btn:focus-visible{outline:none;box-shadow:0 0 0 6px rgba(255,152,0,.12)}
-    .footer{
-      width:min(1100px,95%);display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));margin-bottom:8px
-    }
-    .note{
-      padding:14px 16px;background:var(--glass);border:1px solid var(--stroke);border-radius:var(--radius);
-      color:var(--hint);font-size:13px;text-align:center;backdrop-filter:blur(8px)
-    }
+    .btn-primary{background:var(--accent);border-color:var(--accent);color:#000;box-shadow:0 10px 20px rgba(0,0,0,.25)}
+    .btn-ghost{background:transparent;color:var(--accent);border:1px solid var(--accent)}
+    .btn-ghost:hover{background:rgba(255,152,0,.08)}
+    .btn-link{background:transparent;color:var(--text);border:1px solid var(--stroke)}
+    .btn-link:hover{background:rgba(255,255,255,.05)}
+    .footer{width:min(1100px,95%);display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));margin-bottom:8px}
+    .note{padding:14px 16px;background:var(--panel);border:1px solid var(--stroke);border-radius:18px;color:var(--hint);font-size:13px;text-align:center;backdrop-filter:blur(8px)}
   </style>
 </head>
 <body>
-<div class="wrap">
-  <!-- Header -->
-  <header class="header">
-    <div class="brand">
-      <div class="logo" aria-hidden="true"></div>
-      <div>
-        <div class="title">Gravity-Zone Tools</div>
-        <div class="subtitle">We will convert all your accounts to Premium</div>
+  <div class="wrap">
+    <header class="header">
+      <div class="brand">
+        <div class="disc" aria-hidden="true"></div>
+        <div>
+          <div class="title">Gravity-Zone Tools</div>
+          <div class="sub">We will convert all your accounts to Premium</div>
+        </div>
       </div>
-    </div>
-    <div class="pill">v1 • Hub</div>
-  </header>
-
-  <!-- Grid -->
-  <section class="grid">
-    <!-- 1) Crypto -->
-    <div class="card">
-      <h3>🪙 Crypto & Airdrops</h3>
-      <p>Real-time news.</p>
-      <a class="btn" href="../tools/crypto/">Open</a>
-    </div>
-
-    <!-- 2) Proxy -->
-    <div class="card">
-      <h3>🔐 Proxy Finder-Zone </h3>
-      <p>Auto-generated stable proxies.</p>
-      <a class="btn ghost" href="../tools/proxy/">Get Proxy</a>
-    </div>
-
-    <!-- 3) AI -->
-    <div class="card">
-      <h3>🧠 AI Chat — Models</h3>
-      <p>Switchable.</p>
-      <a class="btn" href="../tools/ai/">Start Chat</a>
-    </div>
-
-    <!-- 4) Translate -->
-    <div class="card">
-      <h3>🗣 Translate (FA ⇄ EN)</h3>
-      <p>Bi-directional translator.</p>
-      <a class="btn" href="../tools/translate/">Translate</a>
-    </div>
-
-    <!-- 5) Touch -->
-    <div class="card">
-      <h3>🎨 Touch the Visual Color</h3>
-      <p>Sound-to-color visualizer.</p>
-      <a class="btn link" href="https://wvw.gravityzone.site/" target="_blank" rel="noopener">Open Tool</a>
-    </div>
-
-    <!-- 6) Gallery -->
-    <div class="card">
-      <h3>🖼️ My Digital Paint & NFT Collection</h3>
-      <p>Explore all artworks by Arjelicc.</p>
-      <a class="btn ghost" href="../tools/gallery/">View Gallery</a>
-    </div>
-
-    <!-- 7) Platforms -->
-    <div class="card">
-      <h3>👽 Join My Other Platforms</h3>
-      <p>Find me on every major platform:</p>
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px">
-        <a class="btn link" href="https://www.instagram.com/jeliccary" target="_blank" rel="noopener">⚪ Instagram</a>
-        <a class="btn link" href="https://www.facebook.com/share/" target="_blank" rel="noopener">🔵 Facebook</a>
-        <a class="btn link" href="https://t.me/GravityyZone/" target="_blank" rel="noopener">🔵 Telegram</a>
-        <a class="btn link" href="https://discord.com/users/Arjelicc" target="_blank" rel="noopener">🟣 Discord</a>
-        <a class="btn link" href="https://wa.me/17864041276" target="_blank" rel="noopener">🟢 WhatsApp</a>
-        <a class="btn link" href="https://m.soundcloud.com/ryaderangi" target="_blank" rel="noopener">🟠 SoundCloud</a>
-        <a class="btn link" href="https://x.com/ArJelicc" target="_blank" rel="noopener">✖️ X (Twitter)</a>
+      <div class="row">
+        <a class="badge" href="../tools/ai/">AI Quick Chat</a>
+        <span class="badge">v1 • Prism</span>
       </div>
-    </div>
-  </section>
+    </header>
 
-  <div class="footer">
-    <div class="note">© We will convert all your accounts to Premium</div>
+    <section class="grid">
+      <article class="card">
+        <span class="corner c1"></span><span class="corner c2"></span>
+        <h3>🪙 Airdrops & News</h3>
+        <p>Crypto news + verified airdrops (auto-refresh).</p>
+        <div class="row" style="margin-top:10px">
+          <a class="btn btn-primary" href="../tools/crypto/">Open</a>
+          <a class="btn btn-link" href="../tools/crypto/">Details</a>
+        </div>
+      </article>
+
+      <article class="card">
+        <span class="corner c1"></span><span class="corner c2"></span>
+        <h3>🔐 Proxy Finder Zone</h3>
+        <p>Stable, auto-generated Telegram proxies.</p>
+        <div class="row" style="margin-top:10px"><a class="btn btn-ghost" href="../tools/proxy/">Get Proxy</a></div>
+      </article>
+
+      <article class="card">
+        <span class="corner c1"></span><span class="corner c2"></span>
+        <h3>🧠 AI Chat Models</h3>
+        <p>GPT / LLaMA • multilingual • switch anytime.</p>
+        <div class="row" style="margin-top:10px"><a class="btn btn-primary" href="../tools/ai/">Start Chat</a></div>
+      </article>
+
+      <article class="card">
+        <span class="corner c1"></span><span class="corner c2"></span>
+        <h3>🗣 Translate</h3>
+        <p>FA ⇄ EN + RU / TR / UK / ID • Voice↔Text.</p>
+        <div class="row" style="margin-top:10px"><a class="btn btn-ghost" href="../tools/translate/">Translate</a></div>
+      </article>
+
+      <article class="card">
+        <span class="corner c1"></span><span class="corner c2"></span>
+        <h3>📚 Dictionary</h3>
+        <p>RU / ID / UK / TR / FA / EN • Voice↔Text.</p>
+        <div class="row" style="margin-top:10px"><a class="btn btn-primary" href="../tools/dictionary/">Open Dictionary</a></div>
+      </article>
+
+      <article class="card">
+        <span class="corner c1"></span><span class="corner c2"></span>
+        <h3>⚡ LIVE News</h3>
+        <p>Auto updates • multiple sources • read-aloud.</p>
+        <div class="row" style="margin-top:10px"><a class="btn btn-primary" href="../tools/live-news/">Open LIVE News</a></div>
+      </article>
+
+      <article class="card">
+        <span class="corner c1"></span><span class="corner c2"></span>
+        <h3>🖼️ My Art Collection & NFT</h3>
+        <p>Fullscreen slider. Crisp. Fast.</p>
+        <div class="row" style="margin-top:10px"><a class="btn btn-ghost" href="../tools/gallery/">View Gallery</a></div>
+      </article>
+
+      <article class="card">
+        <span class="corner c1"></span><span class="corner c2"></span>
+        <h3>🎧 Gravity-Music Zone</h3>
+        <p>Local player + URL + Spotify embed.</p>
+        <div class="row" style="margin-top:10px"><a class="btn btn-primary" href="../tools/music/">Open Music</a></div>
+      </article>
+    </section>
+
+    <section class="footer"><div class="note">© Gravity-Zone • Prism UI • GitHub Pages</div></section>
   </div>
-</div>
-
-<script>
-  try {
-    const tg = window.Telegram?.WebApp;
-    tg?.ready();
-    tg?.expand();
-  } catch(e){}
-</script>
+  <script>try{const tg=window.Telegram?.WebApp;tg?.ready();tg?.expand();}catch(e){};</script>
 </body>
 </html>
