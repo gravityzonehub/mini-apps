@@ -1,1 +1,246 @@
 
+# Create a more "digital art" styled hub HTML the user can download and upload to their repo.
+html = r"""<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Gravity-Zone Tools — Neon Hub</title>
+
+  <!-- Fonts + Tailwind -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter','ui-sans-serif','system-ui'] },
+          colors: {
+            ink:  '#0a0d12',
+            glass:'#0e1320',
+            hint: '#b8c2d9',
+            neon: '#ff7a18',    /* orange-neon */
+            neon2:'#8a2be2',    /* electric purple */
+            mint: '#00ffd0'
+          },
+          boxShadow: {
+            glass: '0 10px 30px rgba(0,0,0,.35)',
+            neon:  '0 0 12px rgba(255,122,24,.5), inset 0 0 12px rgba(255,122,24,.25)'
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    html,body{height:100%;background:#070a0f}
+    /* Animated gradient backdrop */
+    .bg-anim {
+      position: fixed; inset: 0; z-index: -3;
+      background:
+        radial-gradient(1200px 800px at 10% -10%, rgba(138,43,226,.25) 0%, transparent 60%),
+        radial-gradient(1200px 800px at 110% 10%, rgba(0,255,208,.25) 0%, transparent 60%),
+        radial-gradient(1000px 700px at 50% 120%, rgba(255,122,24,.20) 0%, transparent 60%),
+        linear-gradient(180deg, #070a0f 0%, #05070b 100%);
+      filter: saturate(1.1);
+      animation: floatBg 16s ease-in-out infinite alternate;
+    }
+    @keyframes floatBg {
+      0%   { transform: translate3d(0,0,0) scale(1); }
+      100% { transform: translate3d(0,-10px,0) scale(1.02); }
+    }
+    /* Starfield canvas */
+    #stars { position: fixed; inset: 0; z-index: -2; opacity: .35; }
+    /* Grain overlay */
+    .grain:before{
+      content:""; position:fixed; inset:0; z-index:-1; pointer-events:none;
+      background-image:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" opacity="0.08"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="4" stitchTiles="stitch"/></filter><rect width="100%" height="100%" filter="url(%23n)"/></svg>');
+      mix-blend-mode:soft-light;
+    }
+    /* Orbs (glowing blobs) */
+    .orb { position:absolute; border-radius:50%; filter: blur(22px); opacity:.28; z-index:-1; }
+    .orb-1 { width:360px; height:360px; background: radial-gradient(circle at 30% 30%, rgba(255,122,24,.8), transparent 60%); top:-80px; left:-60px; animation: drift1 18s ease-in-out infinite alternate; }
+    .orb-2 { width:420px; height:420px; background: radial-gradient(circle at 60% 60%, rgba(138,43,226,.65), transparent 60%); bottom:-120px; right:-40px; animation: drift2 22s ease-in-out infinite alternate; }
+    @keyframes drift1 { from {transform:translate(0,0)} to {transform:translate(12px,10px)} }
+    @keyframes drift2 { from {transform:translate(0,0)} to {transform:translate(-14px,8px)} }
+
+    /* Cards */
+    .card {
+      transition: transform .18s ease, box-shadow .2s ease, border-color .2s ease, background .2s ease;
+      will-change: transform;
+    }
+    .card:hover { transform: translateY(-4px); }
+    .btn:active { transform: translateY(1px) scale(.99); }
+
+    /* Shimmer underline */
+    .shine {
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,.5), transparent);
+      height:1px; width:100%; transform: translateX(-100%);
+      animation: shine 3s linear infinite;
+    }
+    @keyframes shine { to { transform: translateX(100%);} }
+
+    /* Scanlines for subtle CRT vibe */
+    .scan:before {
+      content:""; position:fixed; inset:0; pointer-events:none; z-index:-1;
+      background: repeating-linear-gradient( to bottom, rgba(255,255,255,.02), rgba(255,255,255,.02) 1px, transparent 2px, transparent 3px );
+      mix-blend-mode:soft-light;
+    }
+  </style>
+</head>
+<body class="font-sans text-white antialiased">
+  <div class="bg-anim"></div>
+  <canvas id="stars"></canvas>
+  <div class="grain scan"></div>
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+
+  <!-- Header -->
+  <header class="max-w-6xl mx-auto px-4 pt-6">
+    <div class="flex items-center justify-between gap-3 rounded-2xl border border-white/10 bg-glass/70 backdrop-blur-xl p-3 sm:p-4 shadow-glass">
+      <div class="flex items-center gap-3">
+        <div class="size-11 rounded-xl bg-gradient-to-br from-neon to-neon2 shadow-[0_0_30px_rgba(255,122,24,.35)]"></div>
+        <div>
+          <h1 class="text-xl sm:text-2xl font-extrabold tracking-tight">Gravity-Zone Tools</h1>
+          <p class="text-hint text-xs sm:text-sm">Creator stack • fast • neon • crisp</p>
+        </div>
+      </div>
+      <div class="hidden sm:flex items-center gap-2">
+        <span class="px-3 py-1.5 rounded-full text-xs border border-white/10 bg-white/5">v1 • Neon Hub</span>
+        <a class="px-3 py-1.5 rounded-full text-xs border border-neon/40 text-neon hover:bg-neon hover:text-black transition"
+           href="../tools/ai/">AI Quick Chat</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero -->
+  <section class="max-w-6xl mx-auto px-4 mt-6">
+    <div class="rounded-2xl border border-white/10 bg-gradient-to-br from-white/5 to-white/0 backdrop-blur-xl p-6 sm:p-8 shadow-glass relative overflow-hidden">
+      <div class="absolute top-0 left-0 right-0 h-px bg-white/10"></div>
+      <div class="shine absolute top-0 left-0"></div>
+      <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+        <div>
+          <div class="inline-flex items-center gap-2 text-xs text-hint mb-2">
+            <span class="size-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            Live toolkit hub
+          </div>
+          <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight">All your tools, one neon hub</h2>
+          <p class="text-hint mt-2 max-w-2xl">Crypto first, Proxy second — then AI, Translate, Touch, Gallery, Music. Fast to load, slick to show.</p>
+        </div>
+        <div class="flex items-center gap-3">
+          <a href="../tools/crypto/" class="btn px-4 py-2 rounded-xl font-extrabold bg-neon text-black shadow-[0_8px_24px_rgba(255,122,24,.35)]">Open Crypto</a>
+          <a href="../tools/proxy/" class="btn px-4 py-2 rounded-xl font-extrabold border border-neon/60 text-neon hover:bg-neon hover:text-black transition">Proxy Zone</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Grid -->
+  <main class="max-w-6xl mx-auto px-4 mt-6 mb-10">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+
+      <!-- 1) Crypto -->
+      <article class="card rounded-2xl border border-white/10 bg-glass/70 backdrop-blur-xl p-5 shadow-glass group">
+        <div class="flex items-center justify-between">
+          <h3 class="text-lg font-extrabold">🪙 Crypto News & Airdrops</h3>
+          <span class="text-[10px] px-2 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-300">auto-refresh</span>
+        </div>
+        <p class="text-hint text-sm mt-2">Curated feeds, 15‑min refresh, action ideas.</p>
+        <div class="mt-4 flex items-center gap-2">
+          <a class="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-neon text-black font-extrabold shadow-neon" href="../tools/crypto/">
+            Open <span aria-hidden>→</span>
+          </a>
+          <a class="text-hint text-xs underline underline-offset-4 hover:text-white" href="../tools/crypto/">Details</a>
+        </div>
+      </article>
+
+      <!-- 2) Proxy -->
+      <article class="card rounded-2xl border border-white/10 bg-glass/70 backdrop-blur-xl p-5 shadow-glass group">
+        <h3 class="text-lg font-extrabold">🔐 Free Proxy For All</h3>
+        <p class="text-hint text-sm mt-2">Stable, auto‑generated proxies. Copy & go.</p>
+        <div class="mt-4">
+          <a class="px-3 py-2 rounded-xl bg-transparent border border-neon/60 text-neon hover:bg-neon hover:text-black font-extrabold transition"
+             href="../tools/proxy/">Get Proxy</a>
+        </div>
+      </article>
+
+      <!-- 3) AI Chat -->
+      <article class="card rounded-2xl border border-white/10 bg-glass/70 backdrop-blur-xl p-5 shadow-glass">
+        <h3 class="text-lg font-extrabold">🧠 AI Chat — 2 Models</h3>
+        <p class="text-hint text-sm mt-2">LLaMA / GPT. 10+ languages. Switch on the fly.</p>
+        <div class="mt-4"><a class="px-3 py-2 rounded-xl bg-neon text-black font-extrabold" href="../tools/ai/">Start Chat</a></div>
+      </article>
+
+      <!-- 4) Translate -->
+      <article class="card rounded-2xl border border-white/10 bg-glass/70 backdrop-blur-xl p-5 shadow-glass">
+        <h3 class="text-lg font-extrabold">🗣 Translate (FA / EN / AR / RU / TR)</h3>
+        <p class="text-hint text-sm mt-2">Bi‑directional, voice↔text, text‑to‑speech.</p>
+        <div class="mt-4"><a class="px-3 py-2 rounded-xl bg-transparent border border-neon/60 text-neon hover:bg-neon hover:text-black font-extrabold transition" href="../tools/translate/">Translate</a></div>
+      </article>
+
+      <!-- 5) Touch -->
+      <article class="card rounded-2xl border border-white/10 bg-glass/70 backdrop-blur-xl p-5 shadow-glass">
+        <h3 class="text-lg font-extrabold">🎨 Touch the Visual Color</h3>
+        <p class="text-hint text-sm mt-2">Finger gestures + reactive visuals + music.</p>
+        <div class="mt-4"><a class="px-3 py-2 rounded-xl bg-neon text-black font-extrabold" href="../tools/touch/">Open</a></div>
+      </article>
+
+      <!-- 6) Gallery -->
+      <article class="card rounded-2xl border border-white/10 bg-glass/70 backdrop-blur-xl p-5 shadow-glass">
+        <h3 class="text-lg font-extrabold">🖼️ Gallery / NFT</h3>
+        <p class="text-hint text-sm mt-2">Fullscreen slider. Crisp. Fast.</p>
+        <div class="mt-4"><a class="px-3 py-2 rounded-xl bg-transparent border border-neon/60 text-neon hover:bg-neon hover:text-black font-extrabold transition" href="../tools/gallery/">View</a></div>
+      </article>
+
+      <!-- 7) Music -->
+      <article class="card rounded-2xl border border-white/10 bg-glass/70 backdrop-blur-xl p-5 shadow-glass">
+        <h3 class="text-lg font-extrabold">🎧 Music Mini-App</h3>
+        <p class="text-hint text-sm mt-2">Local player + Spotify embed ready.</p>
+        <div class="mt-4"><a class="px-3 py-2 rounded-xl bg-neon text-black font-extrabold" href="../tools/music/">Open</a></div>
+      </article>
+
+    </div>
+  </main>
+
+  <footer class="max-w-6xl mx-auto px-4 pb-10">
+    <div class="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl p-4 text-center text-hint text-xs">
+      © Gravity-Zone • Neon mode • GitHub Pages • <span class="text-white/70">Crypto first. Proxy second.</span>
+    </div>
+  </footer>
+
+  <script>
+    // Simple starfield
+    const c = document.getElementById('stars');
+    const ctx = c.getContext('2d');
+    let w,h,stars=[];
+    function resize(){
+      w = c.width = window.innerWidth;
+      h = c.height = window.innerHeight;
+      stars = Array.from({length: Math.min(180, Math.floor(w*h/12000))}, () => ({
+        x: Math.random()*w,
+        y: Math.random()*h,
+        z: Math.random()*0.6 + 0.4,
+        s: Math.random()*1.2 + 0.3
+      }));
+    }
+    function draw(){
+      ctx.clearRect(0,0,w,h);
+      for(const st of stars){
+        ctx.fillStyle = 'rgba(255,255,255,'+(0.3*st.z)+')';
+        ctx.beginPath();
+        ctx.arc(st.x, st.y, st.s, 0, Math.PI*2);
+        ctx.fill();
+        st.x += 0.06 * st.z; if(st.x> w+5) st.x = -5;
+      }
+      requestAnimationFrame(draw);
+    }
+    window.addEventListener('resize', resize);
+    resize(); draw();
+  </script>
+</body>
+</html>
+"""
+path = "/mnt/data/gravity-tools_index_digital.html"
+with open(path, "w", encoding="utf-8") as f:
+    f.write(html)
+path
