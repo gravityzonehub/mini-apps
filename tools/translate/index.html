@@ -1,1 +1,158 @@
+<!doctype html>
+<html lang="fa">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Translate — FA / EN / RU / TR / UK / ID</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg:#0b0e14; --text:#f2f5f8; --hint:#c7d0df;
+      --panel:rgba(255,255,255,.06); --stroke:rgba(255,255,255,.12);
+      --accent:#ff9800; --r:16px; --shadow:0 10px 28px rgba(0,0,0,.35);
+    }
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--text);font-family:'Inter',system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+    a{color:var(--accent);text-decoration:none}
+    .wrap{max-width:1100px;margin:auto;padding:20px}
+    .card{background:var(--panel);border:1px solid var(--stroke);border-radius:var(--r);padding:16px;box-shadow:var(--shadow);backdrop-filter:blur(8px)}
+    .topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+    .title{font-weight:800;font-size:1.4rem}
+    .pill{padding:8px 12px;border-radius:999px;background:rgba(255,255,255,.06);border:1px solid var(--stroke);font-size:12px}
+    .row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+    .grid{display:grid;grid-template-columns:1fr;gap:12px}
+    @media(min-width:980px){ .grid{grid-template-columns:1fr 1fr} }
+    .btn{display:inline-flex;align-items:center;gap:.5rem;padding:.6rem .9rem;border-radius:.6rem;border:1px solid var(--stroke);background:rgba(255,255,255,.04);color:var(--text);font-weight:700;cursor:pointer}
+    .btn:hover{background:rgba(255,255,255,.06)}
+    .btn-primary{background:var(--accent);border-color:var(--accent);color:#000}
+    .btn-outline{border-color:var(--accent);color:var(--accent);background:transparent}
+    .select, .input, textarea{background:#0f121a;color:var(--text);border:1px solid var(--stroke);border-radius:10px;padding:10px;width:100%}
+    .muted{color:var(--hint)}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card topbar">
+      <div>
+        <div class="title">🗣 Translate</div>
+        <div class="muted" style="font-size:13px">FA ⇄ EN + RU/TR/UK/ID • Voice ↔ Text</div>
+      </div>
+      <a class="pill" href="../../gravity-tools/">← Back to Hub</a>
+    </div>
+
+    <div class="card">
+      <div class="row">
+        <label>From</label>
+        <select id="langFrom" class="select" style="width:180px">
+          <option value="fa-IR">Farsi</option>
+          <option value="en-US" selected>English</option>
+          <option value="ru-RU">Russian</option>
+          <option value="tr-TR">Turkish</option>
+          <option value="uk-UA">Ukrainian</option>
+          <option value="id-ID">Indonesian</option>
+        </select>
+        <label>To</label>
+        <select id="langTo" class="select" style="width:180px">
+          <option value="fa">Farsi</option>
+          <option value="en" selected>English</option>
+          <option value="ru">Russian</option>
+          <option value="tr">Turkish</option>
+          <option value="uk">Ukrainian</option>
+          <option value="id">Indonesian</option>
+        </select>
+        <button id="swap" class="btn-outline btn" title="Swap">⇄ Swap</button>
+      </div>
+
+      <div class="grid" style="margin-top:10px">
+        <div>
+          <div class="row">
+            <button id="micIn" class="btn">🎙️ Voice→Text</button>
+            <button id="speakIn" class="btn btn-outline">🔈 Text→Voice</button>
+          </div>
+          <textarea id="input" rows="8" placeholder="Type or speak here..." class="input"></textarea>
+          <div class="muted" style="font-size:12px">Voice→Text با SpeechRecognition مرورگر؛ Text→Voice با speechSynthesis.</div>
+        </div>
+        <div>
+          <div class="row">
+            <button id="translateBtn" class="btn btn-primary">🚀 Translate</button>
+            <button id="speakOut" class="btn btn-outline">🔈 Read Output</button>
+            <button id="copyOut" class="btn btn-outline">📋 Copy</button>
+            <button id="saveTxt" class="btn btn-outline">💾 Save .txt</button>
+          </div>
+          <textarea id="output" rows="8" placeholder="Translation will appear here..." class="input" readonly></textarea>
+          <div class="muted" style="font-size:12px">Provider: MyMemory (بدون کلید). بعداً می‌تونیم API اختصاصی وصل کنیم.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+  const el = id => document.getElementById(id);
+  const langFrom = el('langFrom'), langTo = el('langTo');
+  const input = el('input'), output = el('output');
+  const micIn = el('micIn'), speakIn = el('speakIn'), speakOut = el('speakOut');
+  const translateBtn = el('translateBtn'), copyOut = el('copyOut'), saveTxt = el('saveTxt');
+
+  // Map simple codes to BCP47 for STT/TTS
+  const toBCP47 = l => ({fa:'fa-IR', en:'en-US', ru:'ru-RU', tr:'tr-TR', uk:'uk-UA', id:'id-ID'}[l] || 'en-US');
+
+  // Swap languages + swap text boxes
+  el('swap').onclick = () => {
+    const f = langFrom.value, t = langTo.value;
+    langFrom.value = toBCP47(t.split('-')[0]);
+    langTo.value = (f.split('-')[0]) || 'en';
+    const x = input.value; input.value = output.value; output.value = x;
+  };
+
+  // Speech to Text
+  let rec; const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  micIn.onclick = () => {
+    if(!SR) return alert('SpeechRecognition not supported in this browser.');
+    if(rec) { rec.stop(); rec=null; micIn.textContent='🎙️ Voice→Text'; return; }
+    rec = new SR(); rec.lang = langFrom.value; rec.interimResults = true;
+    micIn.textContent='⏺ Listening… tap to stop';
+    let final=''; rec.onresult = e => {
+      let interim=''; for(let i=e.resultIndex;i<e.results.length;i++){
+        const r=e.results[i]; if(r.isFinal) final+=r[0].transcript+' '; else interim+=r[0].transcript;
+      }
+      input.value = (final + ' ' + interim).trim();
+    };
+    rec.onend = ()=>{ micIn.textContent='🎙️ Voice→Text'; rec=null; };
+    rec.start();
+  };
+
+  // Text to Speech
+  function speak(text, lang){
+    if(!window.speechSynthesis) return alert('speechSynthesis not supported.');
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = toBCP47(lang);
+    window.speechSynthesis.cancel(); window.speechSynthesis.speak(u);
+  }
+  speakIn.onclick = () => speak(input.value, (langFrom.value||'en-US').split('-')[0]);
+  speakOut.onclick = () => speak(output.value, langTo.value);
+
+  // Translate via MyMemory
+  async function translate(q, fromISO, toISO){
+    const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(q)}&langpair=${fromISO}|${toISO}`;
+    const r = await fetch(url); const j = await r.json();
+    return j?.responseData?.translatedText || '';
+  }
+  translateBtn.onclick = async () => {
+    const q = input.value.trim(); if(!q) return;
+    translateBtn.disabled = true; translateBtn.textContent='⏳ Translating…';
+    try { output.value = await translate(q, langFrom.value.split('-')[0], langTo.value); }
+    catch(e){ output.value = 'Translation failed.'; }
+    finally { translateBtn.disabled=false; translateBtn.textContent='🚀 Translate'; }
+  };
+
+  // Copy & Save
+  copyOut.onclick = () => navigator.clipboard.writeText(output.value||'').catch(()=>{});
+  saveTxt.onclick = () => {
+    const blob = new Blob([output.value||''], {type:'text/plain'});
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download='translation.txt'; a.click();
+    URL.revokeObjectURL(a.href);
+  };
+</script>
+</body>
+</html>
 
