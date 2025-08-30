@@ -6,29 +6,38 @@
   <title>Gravity-Zone Tools</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
   <style>
-    :root{--bg:#0b0e14;--text:#f2f5f8;--hint:#c7d0df;--panel:rgba(255,255,255,.06);--stroke:rgba(255,255,255,.12);--accent:#ff9800;--r:18px;--shadow:0 10px 28px rgba(0,0,0,.35);--g1:#ff9800;--g2:#8a2be2;--g3:#00ffd0}
-    *{box-sizing:border-box}html,body{height:100%;margin:0;background:var(--bg);color:var(--text);font-family:'Inter',system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+    :root{
+      --bg:#0b0e14; --text:#f2f5f8; --hint:#c7d0df;
+      --panel:rgba(255,255,255,.06); --stroke:rgba(255,255,255,.12);
+      --accent:#ff9800; --r:18px; --shadow:0 10px 28px rgba(0,0,0,.35);
+      --g1:#ff9800; --g2:#8a2be2; --g3:#00ffd0;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0;background:var(--bg);color:var(--text);font-family:'Inter',system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
     a{text-decoration:none;color:inherit}
     .wrap{min-height:100%;display:flex;flex-direction:column;align-items:center;gap:16px;padding:20px}
     .row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-    .header{width:min(1100px,95%);margin-top:10px;padding:14px 16px;border-radius:18px;background:var(--panel);border:1px solid var(--stroke);backdrop-filter:blur(10px);box-shadow:var(--shadow);display:flex;align-items:center;justify-content:space-between;gap:12px}
+    .header{width:min(1100px,95%);margin-top:10px;padding:14px 16px;border-radius:var(--r);background:var(--panel);border:1px solid var(--stroke);backdrop-filter:blur(10px);box-shadow:var(--shadow);display:flex;align-items:center;justify-content:space-between;gap:12px}
     .brand{display:flex;align-items:center;gap:12px}
-    .disc{width:44px;height:44px;border-radius:12px;background:conic-gradient(from 210deg,#ff9800,#8a2be2,#00ffd0,#ff9800);position:relative;box-shadow:0 0 22px rgba(255,152,0,.25)}
-    .disc:after{content:"";position:absolute;inset:2px;border-radius:10px;background:#0c1119}
+    .disc{position:relative;isolation:isolate;width:44px;height:44px;border-radius:12px;background:conic-gradient(from 210deg, var(--g1), var(--g2), var(--g3), var(--g1));box-shadow:0 0 22px rgba(255,152,0,.25)}
+    .disc:after{content:"";position:absolute;inset:2px;border-radius:10px;background:#0c1119;z-index:0}
+    /* Alien inside the disc */
+    .disc svg{position:absolute;inset:7px;z-index:1;filter:drop-shadow(0 2px 6px rgba(0,0,0,.35));pointer-events:none}
     .title{font-weight:800;letter-spacing:-.2px}
     .sub{color:var(--hint);font-size:13px;margin-top:2px}
     .badge{padding:8px 12px;border-radius:999px;background:rgba(255,255,255,.06);border:1px solid var(--stroke);font-size:12px}
     .grid{width:min(1100px,95%);display:grid;gap:16px;margin:6px 0 18px;grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
-    .card{position:relative;overflow:hidden;border-radius:18px;background:var(--panel);border:1px solid var(--stroke);backdrop-filter:blur(8px);box-shadow:var(--shadow);padding:18px;transition:transform .18s ease,box-shadow .2s ease,border-color .2s ease,background .2s ease}
+    .card{position:relative;overflow:hidden;border-radius:var(--r);background:var(--panel);border:1px solid var(--stroke);backdrop-filter:blur(8px);box-shadow:var(--shadow);padding:18px;transition:transform .18s ease, box-shadow .2s ease, border-color .2s ease, background .2s ease}
     .card:hover{transform:translateY(-3px)}
-    .card:before{content:"";position:absolute;inset:-1px;border-radius:19px;padding:1px;background:linear-gradient(135deg,rgba(255,152,0,.55),rgba(138,43,226,.45),rgba(0,255,208,.45));opacity:0;transition:opacity .25s ease;-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude}
+    /* مهم: لایه‌ی افکت کلیک‌ها رو نبنده */
+    .card:before{content:"";position:absolute;inset:-1px;border-radius:calc(var(--r) + 1px);padding:1px;background:linear-gradient(135deg, rgba(255,152,0,.55), rgba(138,43,226,.45), rgba(0,255,208,.45));opacity:0;transition:opacity .25s ease;-webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none}
     .card:hover:before{opacity:.8}
-    .corner{position:absolute;width:22px;height:22px;border-radius:50%;filter:blur(10px);opacity:.6}
+    .corner{position:absolute;width:22px;height:22px;border-radius:50%;filter:blur(10px);opacity:.6;pointer-events:none}
     .c1{top:-6px;left:-6px;background:radial-gradient(circle at 30% 30%, rgba(255,152,0,.65), transparent 60%)}
     .c2{bottom:-8px;right:-8px;background:radial-gradient(circle at 70% 70%, rgba(138,43,226,.55), transparent 60%)}
     .card h3{margin:0 0 6px;font-size:18px;font-weight:800}
     .card p{margin:0;color:var(--hint);font-size:13.5px;line-height:1.7}
-    .btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;padding:12px 14px;border-radius:14px;border:1px solid var(--stroke);font-weight:800;cursor:pointer;transition:transform .08s ease,box-shadow .2s ease}
+    .btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;padding:12px 14px;border-radius:14px;border:1px solid var(--stroke);font-weight:800;cursor:pointer;transition:transform .08s ease, box-shadow .2s ease}
     .btn:active{transform:translateY(1px) scale(.99)}
     .btn-primary{background:var(--accent);border-color:var(--accent);color:#000;box-shadow:0 10px 20px rgba(0,0,0,.25)}
     .btn-ghost{background:transparent;color:var(--accent);border:1px solid var(--accent)}
@@ -36,14 +45,22 @@
     .btn-link{background:transparent;color:var(--text);border:1px solid var(--stroke)}
     .btn-link:hover{background:rgba(255,255,255,.05)}
     .footer{width:min(1100px,95%);display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));margin-bottom:8px}
-    .note{padding:14px 16px;background:var(--panel);border:1px solid var(--stroke);border-radius:18px;color:var(--hint);font-size:13px;text-align:center;backdrop-filter:blur(8px)}
+    .note{padding:14px 16px;background:var(--panel);border:1px solid var(--stroke);border-radius:var(--r);color:var(--hint);font-size:13px;text-align:center;backdrop-filter:blur(8px)}
   </style>
 </head>
 <body>
   <div class="wrap">
     <header class="header">
       <div class="brand">
-        <div class="disc" aria-hidden="true"></div>
+        <div class="disc" aria-hidden="true">
+          <!-- Alien head -->
+          <svg viewBox="0 0 64 64" aria-hidden="true">
+            <path d="M32 6c-11 0-20 8.4-20 19 0 12.4 14.6 27 20 27s20-14.6 20-27C52 14.4 43 6 32 6z" fill="#9affc8"/>
+            <ellipse cx="24" cy="30" rx="8" ry="6" fill="#111"/>
+            <ellipse cx="40" cy="30" rx="8" ry="6" fill="#111"/>
+            <path d="M24 42c2.5 2 5.5 3 8 3s5.5-1 8-3" fill="none" stroke="#0b0e14" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </div>
         <div>
           <div class="title">Gravity-Zone Tools</div>
           <div class="sub">We will convert all your accounts to Premium</div>
